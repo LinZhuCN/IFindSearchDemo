@@ -7,6 +7,7 @@ Class DocumentSearch.Message.Serial.IdDefinition Extends %SerialObject
 	Property PatientId As %String;
 	
 	Property EncounterNumber As %String;
+	
 Storage Default
 {
 <Data name="IdDefinitionState">

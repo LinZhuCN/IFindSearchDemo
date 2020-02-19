@@ -1,4 +1,5 @@
-Class DocumentSearch.BO.GetIdsByUnionOperation extends Ens.BusinessOperation {
+Class DocumentSearch.BO.GetIdsByUnionOperation Extends Ens.BusinessOperation
+{
 
 Parameter ADAPTER = "EnsLib.SQL.OutboundAdapter";
 
@@ -38,15 +39,16 @@ Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output
 	Set qStatus = ..Adapter.ExecuteQuery(.rset,queryString)
 	#Dim pOutput As DocumentSearch.Message.GetIdListResponse = ##Class(DocumentSearch.Message.GetIdListResponse).%New()
 	while rset.Next(){
-		Do pOutput.EntIds.SetAt("",rset.Get("EncounterId"))
-		Do pOutput.OrgCodes.SetAt("",rset.Get("OrgCode"))
-		Do pOutput.PatIds.SetAt("",rset.Get("PatientId"))
+		Do pOutput.EntIds.SetAt((rset.Get("EncounterId")),(rset.Get("EncounterId")))
+		Do pOutput.OrgCodes.SetAt((rset.Get("OrgCode")),(rset.Get("OrgCode")))
+		Do pOutput.PatIds.SetAt((rset.Get("PatientId")),(rset.Get("PatientId")))
 	}
 	Set ^StrTest = queryString
 	Quit tSC
 }
 
-Method BuildDiagSrhString(cond As %String) As %String{
+Method BuildDiagSrhString(cond As %String) As %String
+{
 	#Dim rtnString As %String = ""
 	If "" '= cond {
 		Set rtnString = "select EncounterId,OrgCode,PatientId from ClinicalDocument.DiagnosisDoc"
@@ -55,7 +57,8 @@ Method BuildDiagSrhString(cond As %String) As %String{
 	quit rtnString
 }
 
-Method BuildDrugSrhString(cond As %String) As %String{
+Method BuildDrugSrhString(cond As %String) As %String
+{
 	#Dim rtnString As %String = ""
 	If "" '= cond {
 		Set rtnString = "select EncounterId,OrgCode,PatientId from ClinicalDocument.DrugDoc"
@@ -64,7 +67,8 @@ Method BuildDrugSrhString(cond As %String) As %String{
 	quit rtnString
 }
 
-Method BuildLabSrhString(cond As %String) As %String{
+Method BuildLabSrhString(cond As %String) As %String
+{
 	#Dim rtnString As %String = ""
 	If "" '= cond {
 		Set rtnString = "select EncounterId,OrgCode,PatientId from ClinicalDocument.LabDoc"
@@ -73,7 +77,8 @@ Method BuildLabSrhString(cond As %String) As %String{
 	quit rtnString
 }
 
-Method BuildExamSrhString(cond As %String) As %String{
+Method BuildExamSrhString(cond As %String) As %String
+{
 	#Dim rtnString As %String = ""
 	If "" '= cond {
 		Set rtnString = "select EncounterId,OrgCode,PatientId from ClinicalDocument.ExamDoc"
@@ -82,7 +87,8 @@ Method BuildExamSrhString(cond As %String) As %String{
 	quit rtnString
 }
 
-XData MessageMap {
+XData MessageMap
+{
 <MapItems>
     <MapItem MessageType="DocumentSearch.Message.SearchEncounterDocRequest">
         <Method>GetIds</Method>
