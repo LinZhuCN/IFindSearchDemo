@@ -8,6 +8,9 @@ Class DocumentSearch.Message.Session.GetEncounterIdsResponse Extends Ens.Respons
 	
 	Property RtnMsg As %String;
 	
+	Property total As %Integer;
+	Property "count_id_no" As %Integer;
+	Property "count_org_code" As %Integer;
 
 
 
@@ -26,6 +29,15 @@ Storage Default
 </Value>
 <Value name="4">
 <Value>RtnMsg</Value>
+</Value>
+<Value name="5">
+<Value>total</Value>
+</Value>
+<Value name="6">
+<Value>count_id_no</Value>
+</Value>
+<Value name="7">
+<Value>count_org_code</Value>
 </Value>
 </Data>
 <DefaultData>GetEncounterIdsResponseDefaultData</DefaultData>

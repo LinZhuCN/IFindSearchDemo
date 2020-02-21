@@ -1,10 +1,10 @@
 Class DocumentSearch.Message.GetIdListResponse Extends Ens.Response
 {
-	Property EntIds As Array of %String;
+	Property EntIds As Array of %String(MAXLEN=1024);
 	
-	Property OrgCodes As Array of %String;
+	Property OrgCodes As Array of %String(MAXLEN=256);
 	
-	Property PatIds As Array of %String;
+	Property PatIds As Array of %String(MAXLEN=256);
 	
 
 Storage Default

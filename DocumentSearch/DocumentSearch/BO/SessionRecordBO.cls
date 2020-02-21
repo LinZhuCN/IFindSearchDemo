@@ -9,7 +9,12 @@ Parameter INVOCATION = "Queue";
 Method SaveSessionRecord(pInput As DocumentSearch.Message.Session.SaveSessionRequest, Output pOutput As DocumentSearch.Message.Session.SaveSessionResponse) As %Status
 {
 	Set tSC = $$$OK
-	#Dim sessionRec As DocumentSearch.Session.SessionRecord = ##class(DocumentSearch.Session.SessionRecord).%New()
+	#Dim sessionRec As DocumentSearch.Session.SessionRecord
+	If ##class(DocumentSearch.Session.SessionRecord).%ExistsId(pInput.Session.SessionId){
+		Set sessionRec = ##class(DocumentSearch.Session.SessionRecord).%OpenId(pInput.Session.SessionId)
+	}else{
+		Set sessionRec = ##class(DocumentSearch.Session.SessionRecord).%New()
+	}
 	Set sessionRec.SessionId = pInput.Session.SessionId
 	Set sessionRec.PreviousRequest = pInput.Session.PreviousRequest
 	Set sessionRec.EntIds = pInput.Session.EntIds
@@ -25,7 +30,9 @@ Method SaveSessionRecord(pInput As DocumentSearch.Message.Session.SaveSessionReq
 Method IsSessionExisting(pInput As DocumentSearch.Message.Session.SessionExistenceRequest, Output pOutput As Ens.StringResponse) As %Status
 {
 	#Dim pOutput As Ens.StringResponse = ##class(Ens.StringResponse).%New()
-	Set pOutput.StringValue = ##Class(DocumentSearch.Session.SessionRecord).%ExistsId(pInput.SessionId)
+	#Dim session As DocumentSearch.Session.SessionRecord = ##Class(DocumentSearch.Session.SessionRecord).%OpenId(pInput.SessionId)
+	Set isSessionExisting = ("" '= session)&&("" '= session.PreviousRequest)&&(pInput.CurrentRequest.Equals(session.PreviousRequest))
+	Set pOutput.StringValue = isSessionExisting
 	Quit $$$OK
 }
 
@@ -63,10 +70,13 @@ Method GetEncounterIds(pInput As DocumentSearch.Message.Session.GetEncounterDocs
 	Set idString = ""
 	For i=stIdx:1:edIdx{
 		Do pOutput.EncounterIds.Insert(entIdList.GetAt(i))
-		Set idString = idString - $CASE((i=edIdx),0:(entIdList.GetAt(i)_","),1:entIdList.GetAt(i))
+		Set idString = idString _ $CASE((i=edIdx),0:"'"_(entIdList.GetAt(i)_"',"),1:"'"_entIdList.GetAt(i)_"'")
 	}
 	Set pOutput.IdString = idString
 	Set pOutput.IsSucceed = 1
+	Set pOutput.total = sessionRecord.EntIds.Count()
+	Set pOutput."count_org_code" = sessionRecord.OrgCodes.Count()
+	Set pOutput."count_id_no" = sessionRecord.PatIds.Count()
 	Quit tSC
 }
 

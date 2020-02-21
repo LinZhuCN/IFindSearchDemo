@@ -78,18 +78,9 @@ Class DocumentSearch.Session.SessionRecord Extends (%Persistent,DocumentSearch.S
 <Type>%Storage.Persistent</Type>
 }*/
 
+
 Storage Default
 {
-<Data name="OrgCodes">
-<Attribute>OrgCodes</Attribute>
-<Structure>subnode</Structure>
-<Subscript>"OrgCodes"</Subscript>
-</Data>
-<Data name="PatIds">
-<Attribute>PatIds</Attribute>
-<Structure>subnode</Structure>
-<Subscript>"PatIds"</Subscript>
-</Data>
 <Data name="SessionRecordDefaultData">
 <Value name="1">
 <Value>%%CLASSNAME</Value>
@@ -98,10 +89,13 @@ Storage Default
 <Value>PreviousRequest</Value>
 </Value>
 <Value name="3">
-<Value>EntIdList</Value>
+<Value>EntIds</Value>
 </Value>
 <Value name="4">
-<Value>EntIds</Value>
+<Value>OrgCodes</Value>
+</Value>
+<Value name="5">
+<Value>PatIds</Value>
 </Value>
 </Data>
 <DataLocation>^IRIS.TempUser.SessionRecordD</DataLocation>

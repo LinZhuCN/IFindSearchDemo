@@ -1,4 +1,4 @@
-Class DocumentSearch.BO.GetIdsByUnionOperation Extends Ens.BusinessOperation
+Class DocumentSearch.BO.DocumentOperation Extends Ens.BusinessOperation
 {
 
 Parameter ADAPTER = "EnsLib.SQL.OutboundAdapter";
@@ -6,6 +6,35 @@ Parameter ADAPTER = "EnsLib.SQL.OutboundAdapter";
 Property Adapter As EnsLib.SQL.OutboundAdapter;
 
 Parameter INVOCATION = "Queue";
+
+
+Method GetEncountsByIdString(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.Message.GetEncountersStreamResponse) As %Status
+{
+	Set tSC = $$$OK
+	If "" = pInput.StringValue {
+		Quit tSC
+	}
+	Set queryString = "select EncounterContent from ClinicalDocument.EncounterDoc"
+		_" where EncounterId  in ("_pInput.StringValue_")"
+	Set ^Test("queryString")  = queryString
+	#Dim rset As EnsLib.SQL.GatewayResultSet
+	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
+	#Dim pOutput As DocumentSearch.Message.GetEncountersStreamResponse  = ##Class(DocumentSearch.Message.GetEncountersStreamResponse).%New()
+	Do pOutput.ContentStream.Rewind()
+	//Add the first element
+	If rset.Next(){
+		Do pOutput.ContentStream.Write("[")
+		Do pOutput.ContentStream.Write(rset.%Get("EncounterContent"))
+	}else{
+		Quit tSC
+	}
+	//Add other elements
+	While rset.Next(){
+		Do pOutput.ContentStream.Write(","_rset.%Get("EncounterContent"))
+	}
+	Do pOutput.ContentStream.Write("]")
+	Quit tSC
+}
 
 Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output pOutput As DocumentSearch.Message.GetIdListResponse) As %Status
 {
@@ -36,7 +65,7 @@ Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output
 	}
 	Set queryString = queryString_" )"
 	#Dim rset As EnsLib.SQL.GatewayResultSet
-	Set qStatus = ..Adapter.ExecuteQuery(.rset,queryString)
+	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
 	#Dim pOutput As DocumentSearch.Message.GetIdListResponse = ##Class(DocumentSearch.Message.GetIdListResponse).%New()
 	while rset.Next(){
 		Do pOutput.EntIds.SetAt((rset.Get("EncounterId")),(rset.Get("EncounterId")))
@@ -92,6 +121,9 @@ XData MessageMap
 <MapItems>
     <MapItem MessageType="DocumentSearch.Message.SearchEncounterDocRequest">
         <Method>GetIds</Method>
+    </MapItem>
+    <MapItem MessageType="Ens.StringRequest">
+        <Method>GetEncountsByIdString</Method>
     </MapItem>
 </MapItems>
 }

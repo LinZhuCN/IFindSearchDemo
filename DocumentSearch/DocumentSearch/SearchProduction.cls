@@ -32,9 +32,13 @@ XData ProductionDefinition
     <Setting Target="Host" Name="IndexName">ClinicalDocument.LabDoc.IdxLabContent</Setting>
     <Setting Target="Host" Name="TableName">ClinicalDocument.LabDoc</Setting>
   </Item>
-  <Item Name="DocumentSearch.BO.GetIdsByUnionOperation" Category="" ClassName="DocumentSearch.BO.GetIdsByUnionOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
-    <Setting Target="Adapter" Name="JGService">EnsLib.JavaGateway.Service</Setting>
+  <Item Name="DocumentSearch.BP.SearchDocumentBPL" Category="" ClassName="DocumentSearch.BP.SearchDocumentBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BO.SessionRecordBO" Category="" ClassName="DocumentSearch.BO.SessionRecordBO" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BO.DocumentOperation" Category="" ClassName="DocumentSearch.BO.DocumentOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
     <Setting Target="Adapter" Name="DSN">DocDB</Setting>
+    <Setting Target="Adapter" Name="JGService">EnsLib.JavaGateway.Service</Setting>
   </Item>
 </Production>
 }

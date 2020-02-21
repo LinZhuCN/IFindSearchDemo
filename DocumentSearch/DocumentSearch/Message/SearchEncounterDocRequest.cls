@@ -1,6 +1,8 @@
 Class DocumentSearch.Message.SearchEncounterDocRequest Extends Ens.Request
 {
-	Property sessionId As %String;
+	Property sessionId As %String[required];
+	//PageSize between 10 to 1000 
+	Property pageSize As %Integer(MINVAL=10,MAXVAL=1000);
 	Property diag As %String;
 	Property drug As %String;
 	Property operation As %String;
@@ -37,27 +39,31 @@ Class DocumentSearch.Message.SearchEncounterDocRequest Extends Ens.Request
 		quit $$$OK
 	}*/
 	
+
 Storage Default
 {
 <Data name="SearchEncounterDocRequestDefaultData">
 <Subscript>"SearchEncounterDocRequest"</Subscript>
 <Value name="1">
-<Value>diag</Value>
+<Value>sessionId</Value>
 </Value>
 <Value name="2">
-<Value>drug</Value>
+<Value>pageSize</Value>
 </Value>
 <Value name="3">
-<Value>operation</Value>
+<Value>diag</Value>
 </Value>
 <Value name="4">
-<Value>labMaster</Value>
+<Value>drug</Value>
 </Value>
 <Value name="5">
-<Value>examMaster</Value>
+<Value>operation</Value>
 </Value>
 <Value name="6">
-<Value>sessionId</Value>
+<Value>labMaster</Value>
+</Value>
+<Value name="7">
+<Value>examMaster</Value>
 </Value>
 </Data>
 <DefaultData>SearchEncounterDocRequestDefaultData</DefaultData>
