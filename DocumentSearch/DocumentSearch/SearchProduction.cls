@@ -7,6 +7,7 @@ XData ProductionDefinition
   <Description></Description>
   <ActorPoolSize>2</ActorPoolSize>
   <Item Name="EnsLib.JavaGateway.Service" Category="" ClassName="EnsLib.JavaGateway.Service" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Host" Name="Port">55556</Setting>
   </Item>
   <Item Name="GetIdsFromDiagnosis" Category="" ClassName="DocumentSearch.BO.GetIdsOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
     <Setting Target="Adapter" Name="DSN">DocDB</Setting>
@@ -41,6 +42,12 @@ XData ProductionDefinition
   <Item Name="DocumentSearch.BO.SessionRecordOperation" Category="" ClassName="DocumentSearch.BO.SessionRecordOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
   <Item Name="DocumentSearch.BP.GetDocumentsFromSessionBPL" Category="" ClassName="DocumentSearch.BP.GetDocumentsFromSessionBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BP.GetDocumentsFromSessionProcess" Category="" ClassName="DocumentSearch.BP.GetDocumentsFromSessionProcess" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BO.OptimizedDocumentOperation" Category="" ClassName="DocumentSearch.BO.OptimizedDocumentOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+    <Setting Target="Adapter" Name="JGService">EnsLib.JavaGateway.Service</Setting>
+    <Setting Target="Adapter" Name="DSN">DocDB</Setting>
   </Item>
 </Production>
 }

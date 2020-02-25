@@ -1,11 +1,15 @@
 Class DocumentSearch.BO.DocumentViewOperation Extends Ens.BusinessOperation
 {
 
-Parameter ADAPTER = "EnsLib.SQL.OutboundAdapter";
+Parameter ADAPTER = "Ens.OutboundAdapter";
 
-Property Adapter As EnsLib.SQL.OutboundAdapter;
+Property Adapter As Ens.OutboundAdapter;
 
 Parameter INVOCATION = "Queue";
+
+Parameter viewSchema = "ClinicalDocument";
+
+Parameter viewPrefix = "View";
 
 Method RemoveView(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.Message.ViewOperationResponse) As %Status
 {
@@ -13,11 +17,14 @@ Method RemoveView(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.
 	If "" = pInput.StringValue {
 		Quit tSC
 	}
-	Set queryString = "Drop View "_pInput.StringValue
-	#Dim rset As EnsLib.SQL.GatewayResultSet
-	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
+	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_pInput.StringValue
+	Set queryString = "Drop View "_viewName
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
 	#Dim pOutput As DocumentSearch.Message.ViewOperationResponse  = ##Class(DocumentSearch.Message.ViewOperationResponse).%New()
-	Set pOutput.ViewName = pInput.StringValue
+	Set pOutput.ViewName = viewName
+	Set pOutput.SessionId = pInput.StringValue
 	If tSC{
 		Set pOutput.IsSucceed=1
 	}Else{
@@ -29,8 +36,8 @@ Method RemoveView(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.
 Method CreateView(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output pOutput As DocumentSearch.Message.ViewOperationResponse) As %Status
 {
 	Set tSC = $$$OK
-	Set viewName = "ClinicalDocument."_pInput.sessionId
-	Set queryString = "Create View "_viewName_" (select EncounterId,OrgCode,PatientId from %PARALLEL ( "
+	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_pInput.sessionId
+	Set queryString = "Create View "_viewName_" As (select EncounterId,OrgCode,PatientId from %PARALLEL ( "
 	#Dim unionStrArr As %ListOfDataTypes  = ##class(%ListOfDataTypes).%New()
 	If "" '= pInput.diag{
 		Do unionStrArr.Insert(..BuildDiagSrhString(pInput.diag))
@@ -55,9 +62,9 @@ Method CreateView(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Ou
 		}
 	}
 	Set queryString = queryString_" ))"
-	Set ^Test("createView")  = queryString
-	#Dim rset As EnsLib.SQL.GatewayResultSet
-	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
 	#Dim pOutput As DocumentSearch.Message.ViewOperationResponse = ##Class(DocumentSearch.Message.ViewOperationResponse).%New()
 	Set pOutput.SessionId = pInput.sessionId
 	If tSC {
@@ -126,6 +133,47 @@ Method BuildIFindSearchString(inString As %String) As %String
 	Quit srhString
 }
 
+Method GetEncounterIdsFromView(pInput As DocumentSearch.Message.GetEncounterDocsFromViewRequest, Output pOutput As DocumentSearch.Message.GetEncounterIdsResponse) As %Status{
+	Set tSC = $$$OK
+	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_pInput.SessionId
+	Set pageSize = pInput.PageSize
+	Set pageNumber = pInput.PageNumber
+	Set stIdx = (pageSize*(pageNumber-1))+1
+	Set edIdx = pageSize*pageNumber
+	Set queryString = "SELECT EncounterId, OrgCode, PATIENTID"
+		_" FROM "_viewName
+		_" where %VID Between ? AND ?"
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute(stIdx,edIdx)
+	#Dim pOutput As DocumentSearch.Message.GetEncounterIdsResponse = ##Class(DocumentSearch.Message.GetEncounterIdsResponse).%New()
+	If ""  = rset{
+		Set pOutput.IsSucceed = 0
+		Set pOutput.RtnMsg = "Query from View "_viewName_" Failed"
+		Quit $$$OK
+	}
+	Set idString = ""
+	While rset.%Next(){
+		Do pOutput.EncounterIds.Insert(rset.%Get("EncounterId"))
+		Set idString = idString _ $CASE((""=idString),0:",'"_(rset.%Get("EncounterId"))_"'",1:"'"_rset.%Get("EncounterId")_"'")
+	}
+	Set pOutput.IdString = idString
+	Set pOutput.IsSucceed=1
+	Set pOutput.RtnMsg="Query from View Succeed"
+	Quit tSC
+}
+
+Method IsViewExisting(pInput As DocumentSearch.Message.CheckViewRequest, Output pOutput As Ens.StringResponse) As %Status{
+	Set viewName = ..#viewPrefix_"_"_pInput.SessionId
+	Set schemaName = ..#viewSchema
+	Set viewId = ""
+	&SQL(SELECT ID INTO :viewId FROM INFORMATION_SCHEMA.VIEWS
+		Where TABLE_SCHEMA=:schemaName AND TABLE_NAME=:viewName)
+	Set pOutput = ##Class(Ens.StringResponse).%New()
+	Set pOutput.StringValue = ("" '= viewId)
+	Quit $$$OK
+}
+
 XData MessageMap
 {
 <MapItems>
@@ -134,6 +182,12 @@ XData MessageMap
     </MapItem>
     <MapItem MessageType="Ens.StringRequest">
         <Method>RemoveView</Method>
+    </MapItem>
+    <MapItem MessageType="DocumentSearch.Message.GetEncounterDocsFromViewRequest">
+        <Method>GetEncounterIdsFromView</Method>
+    </MapItem>
+    <MapItem MessageType="DocumentSearch.Message.CheckViewRequest">
+        <Method>IsViewExisting</Method>
     </MapItem>
 </MapItems>
 }

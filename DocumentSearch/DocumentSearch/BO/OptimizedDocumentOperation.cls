@@ -1,9 +1,9 @@
 Class DocumentSearch.BO.OptimizedDocumentOperation Extends Ens.BusinessOperation
 {
 
-Parameter ADAPTER = "EnsLib.SQL.OutboundAdapter";
+Parameter ADAPTER = "Ens.OutboundAdapter";
 
-Property Adapter As EnsLib.SQL.OutboundAdapter;
+Property Adapter As Ens.OutboundAdapter;
 
 Parameter INVOCATION = "Queue";
 
@@ -15,21 +15,23 @@ Method GetEncountsByIdString(pInput As Ens.StringRequest, Output pOutput As Docu
 	}
 	Set queryString = "select EncounterContent from ClinicalDocument.EncounterDoc"
 		_" where EncounterId  in ("_pInput.StringValue_")"
-	Set ^Test("queryString")  = queryString
-	#Dim rset As EnsLib.SQL.GatewayResultSet
-	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
 	#Dim pOutput As DocumentSearch.Message.GetEncountersStreamResponse  = ##Class(DocumentSearch.Message.GetEncountersStreamResponse).%New()
 	Do pOutput.ContentStream.Rewind()
 	//Add the first element
-	If rset.Next(){
+	If rset.%Next(){
+		Set tmpStream = ##Class(%Stream.Object).%Open(rset.%Get("EncounterContent"))
 		Do pOutput.ContentStream.Write("[")
-		Do pOutput.ContentStream.Write(rset.%Get("EncounterContent"))
+		Do pOutput.ContentStream.Write(tmpStream.Read())
 	}else{
 		Quit tSC
 	}
 	//Add other elements
-	While rset.Next(){
-		Do pOutput.ContentStream.Write(","_rset.%Get("EncounterContent"))
+	While rset.%Next(){
+		Set tmpStream = ##Class(%Stream.Object).%Open(rset.%Get("EncounterContent"))
+		Do pOutput.ContentStream.Write(tmpStream.Read())
 	}
 	Do pOutput.ContentStream.Write("]")
 	Quit tSC
@@ -63,16 +65,15 @@ Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output
 		}
 	}
 	Set queryString = queryString_" )"
-	Set ^Test("queryString")  = queryString
-	#Dim rset As EnsLib.SQL.GatewayResultSet
-	Set tSC = ..Adapter.ExecuteQuery(.rset,queryString)
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
 	#Dim pOutput As DocumentSearch.Message.GetIdListResponse = ##Class(DocumentSearch.Message.GetIdListResponse).%New()
-	while rset.Next(){
-		Do pOutput.EntIds.SetAt((rset.Get("EncounterId")),(rset.Get("EncounterId")))
-		Do pOutput.OrgCodes.SetAt((rset.Get("OrgCode")),(rset.Get("OrgCode")))
-		Do pOutput.PatIds.SetAt((rset.Get("PatientId")),(rset.Get("PatientId")))
+	while rset.%Next(){
+		Do pOutput.EntIds.SetAt((rset.%Get("EncounterId")),(rset.%Get("EncounterId")))
+		Do pOutput.OrgCodes.SetAt((rset.%Get("OrgCode")),(rset.%Get("OrgCode")))
+		Do pOutput.PatIds.SetAt((rset.%Get("PatientId")),(rset.%Get("PatientId")))
 	}
-	Set ^StrTest = queryString
 	Quit tSC
 }
 
@@ -120,7 +121,8 @@ Method BuildExamSrhString(inputStr As %String) As %String
 	quit rtnString
 }
 
-Method BuildIFindSearchString(inString As %String) As %String{
+Method BuildIFindSearchString(inString As %String) As %String
+{
 	Set valueList = $LFS(inString," ")
 	Set srhString = ""
 	Set ptr = 0
