@@ -14,8 +14,9 @@ Property IndexName As %String;
 
 Parameter SETTINGS   = "TableName:DocSource, IndexName:DocSource";
 
-Method GetIds(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.Message.GetIdListResponse) As %Status
+Method GetIds(pInput As Ens.StringRequest, Output pOutput As Ens.StringResponse) As %Status
 {
+	Set cond = ..BuildIFindSearchString(pInput.StringValue)
 	Set queryString = "select EncounterId,OrgCode,PatientId"
 	_" from " _ ..TableName
 	_" where %ID %FIND search_index("_ ..IndexName_",'"_ pInput.StringValue _"',0,'ja')"
@@ -23,13 +24,35 @@ Method GetIds(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.Mess
 	//Set ^Test = queryString
 	#Dim rset As EnsLib.SQL.GatewayResultSet
 	Set qStatus = ..Adapter.ExecuteQuery(.rset,queryString)
-	#Dim pOutput As DocumentSearch.Message.GetIdListResponse = ##Class(DocumentSearch.Message.GetIdListResponse).%New()
+	#Dim pOutput As Ens.StringResponse = ##Class(Ens.StringResponse).%New()
 	while rset.Next(){
-		Do pOutput.EntIds.SetAt("",rset.Get("EncounterId"))
+		Set ^||SearchResult("1", "EncounterId",rset.Get("EncounterId"))=1
+		/*Do pOutput.EntIds.SetAt("",rset.Get("EncounterId"))
 		Do pOutput.OrgCodes.SetAt("",rset.Get("OrgCode"))
-		Do pOutput.PatIds.SetAt("",rset.Get("PatientId"))
+		Do pOutput.PatIds.SetAt("",rset.Get("PatientId"))*/
 	}
+	Set tSub =""
+	Set tCount = 0
+	Set tSub = $O(^||SearchResult("1","PatientId",tSub))
+	While tSub
+	{
+		set tCount=tCount+1
+		Set tSub = $O(^||SearchResult("1","PatientId",tSub))
+	}
+	Set pOutput.StringValue = tCount
 	Quit qStatus
+}
+
+Method BuildIFindSearchString(inString As %String) As %String{
+	Set valueList = $LFS(inString," ")
+	Set srhString = ""
+	Set ptr = 0
+	while $LISTNEXT(valueList,ptr,value){
+		if ("" '= value) {
+			Set srhString=srhString_$CASE((""=srhString),0:" OR "_"*"_value_"*",1:"*"_value_"*")
+		}
+	}
+	Quit srhString
 }
 
 XData MessageMap {

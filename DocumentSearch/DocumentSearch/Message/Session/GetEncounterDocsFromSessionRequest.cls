@@ -2,7 +2,7 @@ Class DocumentSearch.Message.Session.GetEncounterDocsFromSessionRequest Extends 
 {
 	Property SessionId As %String[required];
 	
-	Property PageSize As %Integer(MINVAL=1);
+	Property PageSize As %Integer(MINVAL=10,MAXVAL=100);
 	
 	Property PageNumber As %Integer(MINVAL=1);
 	

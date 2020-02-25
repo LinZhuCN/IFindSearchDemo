@@ -34,11 +34,13 @@ XData ProductionDefinition
   </Item>
   <Item Name="DocumentSearch.BP.SearchDocumentBPL" Category="" ClassName="DocumentSearch.BP.SearchDocumentBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
-  <Item Name="DocumentSearch.BO.SessionRecordBO" Category="" ClassName="DocumentSearch.BO.SessionRecordBO" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
-  </Item>
   <Item Name="DocumentSearch.BO.DocumentOperation" Category="" ClassName="DocumentSearch.BO.DocumentOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
     <Setting Target="Adapter" Name="DSN">DocDB</Setting>
     <Setting Target="Adapter" Name="JGService">EnsLib.JavaGateway.Service</Setting>
+  </Item>
+  <Item Name="DocumentSearch.BO.SessionRecordOperation" Category="" ClassName="DocumentSearch.BO.SessionRecordOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BP.GetDocumentsFromSessionBPL" Category="" ClassName="DocumentSearch.BP.GetDocumentsFromSessionBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
 </Production>
 }

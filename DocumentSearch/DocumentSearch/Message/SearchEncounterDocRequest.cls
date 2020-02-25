@@ -1,8 +1,8 @@
 Class DocumentSearch.Message.SearchEncounterDocRequest Extends Ens.Request
 {
 	Property sessionId As %String[required];
-	//PageSize between 10 to 1000 
-	Property pageSize As %Integer(MINVAL=10,MAXVAL=1000);
+	//PageSize between 10 to 100
+	Property pageSize As %Integer(MINVAL=10,MAXVAL=100);
 	Property diag As %String;
 	Property drug As %String;
 	Property operation As %String;

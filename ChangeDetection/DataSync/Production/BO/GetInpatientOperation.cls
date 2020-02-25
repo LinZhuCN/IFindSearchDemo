@@ -15,7 +15,7 @@ Method GetInpatient(pInput As DataSync.Production.Message.AddEncounterRequest, O
 	Set qStatus = ..Adapter.ExecuteQuery(.rset,qryString,pInput.OrgCode,pInput.EncounterNumber,pInput.PATIENTID)
 	#Dim pOutput As DataSync.Production.Message.GetEncounterResponse = ##class(DataSync.Production.Message.GetEncounterResponse).%New()
 	If rset.Next() {
-		set pOutput.Encounter.id = rset.%Get("INPAT_FORM_NO")_rset.%Get("ORG_CODE")
+		set pOutput.Encounter.id = rset.%Get("INPAT_FORM_NO")_"||"_rset.%Get("ORG_CODE")
 		set pOutput.Encounter.ORGCODE = rset.%Get("ORG_CODE")
 		set pOutput.Encounter.ORGNAME = rset.%Get("ORG_NAME")
 		set pOutput.Encounter.ORGPROVINCE = rset.%Get("PROVINCE_CODE")

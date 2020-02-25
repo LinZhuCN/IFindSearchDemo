@@ -40,7 +40,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 <if name='IsSearchConditionNotEmpty' condition='(("" &apos;= request.diag)||("" &apos;= request.drug)||("" &apos;= request.operation)||("" &apos;= request.labMaster)||("" &apos;= request.examMaster))' xpos='200' ypos='250' xend='200' yend='1350' >
 <true>
 <assign name="SetPageSize" property="context.PageSize" value="request.pageSize" action="set" xpos='470' ypos='400' />
-<call name='CheckSessionExistence' target='DocumentSearch.BO.SessionRecordBO' async='0' xpos='470' ypos='500' >
+<call name='CheckSessionExistence' target='DocumentSearch.BO.SessionRecordOperation' async='0' xpos='470' ypos='500' >
 <request type='DocumentSearch.Message.Session.SessionExistenceRequest' >
 <assign property="callrequest.SessionId" value="request.sessionId" action="set" />
 <assign property="callrequest.CurrentRequest" value="request" action="set" />
@@ -51,7 +51,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 </call>
 <if name='IsSessionExisting' condition='context.IsSessionExisting' xpos='470' ypos='600' xend='470' yend='1250' >
 <true>
-<call name='GetIdStringFromSessison' target='DocumentSearch.BO.SessionRecordBO' async='0' xpos='470' ypos='750' >
+<call name='GetIdStringFromSessison' target='DocumentSearch.BO.SessionRecordOperation' async='0' xpos='470' ypos='750' >
 <request type='DocumentSearch.Message.Session.GetEncounterDocsFromSessionRequest' >
 <assign property="callrequest.SessionId" value="request.sessionId" action="set" />
 <assign property="callrequest.PageSize" value="request.pageSize" action="set" />
@@ -125,7 +125,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 
  ]]>
 </code>
-<call name='SaveSessionRecord' target='DocumentSearch.BO.SessionRecordBO' async='1' xpos='740' ypos='1150' >
+<call name='SaveSessionRecord' target='DocumentSearch.BO.SessionRecordOperation' async='1' xpos='740' ypos='1150' >
 <request type='DocumentSearch.Message.Session.SaveSessionRequest' >
 <assign property="callrequest.Session.SessionId" value="request.sessionId" action="set" />
 <assign property="callrequest.Session.PreviousRequest" value="request" action="set" />

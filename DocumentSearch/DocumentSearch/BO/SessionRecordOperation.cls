@@ -1,4 +1,5 @@
-Class DocumentSearch.BO.SessionRecordBO extends Ens.BusinessOperation {
+Class DocumentSearch.BO.SessionRecordOperation Extends Ens.BusinessOperation
+{
 
 Parameter ADAPTER = "Ens.OutboundAdapter";
 
@@ -80,7 +81,8 @@ Method GetEncounterIds(pInput As DocumentSearch.Message.Session.GetEncounterDocs
 	Quit tSC
 }
 
-XData MessageMap {
+XData MessageMap
+{
 <MapItems>
     <MapItem MessageType="DocumentSearch.Message.Session.SaveSessionRequest">
         <Method>SaveSessionRecord</Method>
