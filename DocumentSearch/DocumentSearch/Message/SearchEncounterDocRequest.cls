@@ -1,6 +1,6 @@
-Class DocumentSearch.Message.SearchEncounterDocRequest Extends Ens.Request
+Class DocumentSearch.Message.SearchEncounterDocRequest Extends (Ens.Request,%JSON.Adaptor)
 {
-	Property sessionId As %String[required];
+	Property sessionId As %String;
 	//PageSize between 10 to 100
 	Property pageSize As %Integer(MINVAL=10,MAXVAL=100);
 	Property diag As %String;
@@ -8,13 +8,17 @@ Class DocumentSearch.Message.SearchEncounterDocRequest Extends Ens.Request
 	Property operation As %String;
 	Property labMaster As %String;
 	Property examMaster As %String;
-	
-	
-	Method Equals(obj As DocumentSearch.Message.SearchEncounterDocRequest) As %Boolean{
-		Set result = 0
-		Set result = ((..diag = obj.diag) && (..drug = obj.drug) && (..examMaster = obj.examMaster) && (..labMaster = obj.labMaster) && (..operation = obj.operation))
-		quit result
-	}
+	Property sex As %String;
+	Property birthDateStart As %String;
+	Property birthDateEnd As %String;
+	Property timeStart As %String;
+	Property timeEnd As %String;
+	Property orgProvince As %String;
+	Property orgCode As %String;
+	Property deptCode As %String;
+	Property eventType As %String;
+	/*Property from As %Integer[ InitialExpression = 1 ];
+	Property size As %Integer(MINVAL=10,MAXVAL=100)[ InitialExpression = 100 ];*/
 	
 	/*ClassMethod TestEquals(){
 		Set req1 = ##class(DocumentSearch.Message.SearchEncounterDocRequest).%New()
@@ -64,6 +68,39 @@ Storage Default
 </Value>
 <Value name="7">
 <Value>examMaster</Value>
+</Value>
+<Value name="8">
+<Value>sex</Value>
+</Value>
+<Value name="9">
+<Value>birthDateStart</Value>
+</Value>
+<Value name="10">
+<Value>birthDateEnd</Value>
+</Value>
+<Value name="11">
+<Value>timeStart</Value>
+</Value>
+<Value name="12">
+<Value>timeEnd</Value>
+</Value>
+<Value name="13">
+<Value>orgProvince</Value>
+</Value>
+<Value name="14">
+<Value>orgCode</Value>
+</Value>
+<Value name="15">
+<Value>deptCode</Value>
+</Value>
+<Value name="16">
+<Value>eventType</Value>
+</Value>
+<Value name="17">
+<Value>from</Value>
+</Value>
+<Value name="18">
+<Value>size</Value>
 </Value>
 </Data>
 <DefaultData>SearchEncounterDocRequestDefaultData</DefaultData>

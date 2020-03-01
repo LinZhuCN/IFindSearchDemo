@@ -36,12 +36,14 @@ XData ProductionDefinition
   <Item Name="DocumentSearch.BP.SearchDocumentBPL" Category="" ClassName="DocumentSearch.BP.SearchDocumentBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
   <Item Name="DocumentSearch.BO.OptimizedDocumentOperation" Category="" ClassName="DocumentSearch.BO.OptimizedDocumentOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
-    <Setting Target="Adapter" Name="JGService">EnsLib.JavaGateway.Service</Setting>
-    <Setting Target="Adapter" Name="DSN">DocDB</Setting>
   </Item>
   <Item Name="DocumentSearch.BO.DocumentViewOperation" Category="" ClassName="DocumentSearch.BO.DocumentViewOperation" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
   <Item Name="DocumentSearch.BP.GetDocumentsFromViewBPL" Category="" ClassName="DocumentSearch.BP.GetDocumentsFromViewBPL" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BS.InitialSearchService" Category="" ClassName="DocumentSearch.BS.InitialSearchService" PoolSize="1" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
+  </Item>
+  <Item Name="DocumentSearch.BS.GetEncounterByPageService" Category="" ClassName="DocumentSearch.BS.GetEncounterByPageService" PoolSize="0" Enabled="true" Foreground="false" Comment="" LogTraceEvents="false" Schedule="">
   </Item>
 </Production>
 }

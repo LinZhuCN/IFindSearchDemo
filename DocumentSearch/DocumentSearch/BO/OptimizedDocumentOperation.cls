@@ -20,27 +20,38 @@ Method GetEncountsByIdString(pInput As Ens.StringRequest, Output pOutput As Docu
 	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
 	#Dim pOutput As DocumentSearch.Message.GetEncountersStreamResponse  = ##Class(DocumentSearch.Message.GetEncountersStreamResponse).%New()
 	Do pOutput.ContentStream.Rewind()
+	#Dim tmpArray As %DynamicArray = []
+	/*
 	//Add the first element
 	If rset.%Next(){
+		#Dim tmpObj As %DynamicObject = {}
 		Set tmpStream = ##Class(%Stream.Object).%Open(rset.%Get("EncounterContent"))
+		Do tmpObj.%FromJSON(tmpStream)
+		Do tmpArray.%Push(tmpObj)
 		Do pOutput.ContentStream.Write("[")
 		Do pOutput.ContentStream.Write(tmpStream.Read())
 	}else{
 		Quit tSC
 	}
+	*/
 	//Add other elements
 	While rset.%Next(){
+		#Dim tmpObj As %DynamicObject = {}
 		Set tmpStream = ##Class(%Stream.Object).%Open(rset.%Get("EncounterContent"))
-		Do pOutput.ContentStream.Write(tmpStream.Read())
+		//Do tmpStream.Rewind()
+		Set tmpObj = ##Class(%DynamicObject).%FromJSON(tmpStream)
+		Do tmpArray.%Push(tmpObj)
+		Do tmpObj.%ToJSON()
 	}
-	Do pOutput.ContentStream.Write("]")
+	Do tmpArray.%ToJSON(pOutput.ContentStream)
+	//Do pOutput.ContentStream.Write("]")
 	Quit tSC
 }
 
 Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output pOutput As DocumentSearch.Message.GetIdListResponse) As %Status
 {
 	Set tSC = $$$OK
-	Set queryString = "select TOP "_pInput.pageSize_" EncounterId,OrgCode,PatientId from %PARALLEL ( "
+	Set queryString = "select TOP "_pInput.pageSize_" a.EncounterId,a.OrgCode,a.PatientId from %PARALLEL ( "
 	#Dim unionStrArr As %ListOfDataTypes  = ##class(%ListOfDataTypes).%New()
 	If "" '= pInput.diag{
 		Do unionStrArr.Insert(..BuildDiagSrhString(pInput.diag))
@@ -64,7 +75,13 @@ Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output
 			Set queryString  = queryString _unionStrArr.GetAt(i)
 		}
 	}
-	Set queryString = queryString_" )"
+	Set queryString = queryString_" ) As a"
+	Set entQryString = ..BuildEncounterSrhString(pInput)
+	If "" '= entQryString {
+		Set queryString = queryString _ ", ClinicalDocument.EncounterDoc As b where a.EncounterId = b.EncounterId"_entQryString
+		
+	}
+	//Set ^Temp("qryString1") = queryString
 	Set tStatement = ##class(%SQL.Statement).%New()
 	Set tSC = tStatement.%Prepare(queryString)
 	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
@@ -75,6 +92,39 @@ Method GetIds(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output
 		Do pOutput.PatIds.SetAt((rset.%Get("PatientId")),(rset.%Get("PatientId")))
 	}
 	Quit tSC
+}
+
+Method BuildEncounterSrhString(req As DocumentSearch.Message.SearchEncounterDocRequest) As %String
+{
+	Set qryString = ""
+	if "" '= req.sex{
+		Set qryString=qryString_" and b.SEXCODE='"_req.sex_"'"
+	}
+	if "" '= req.orgProvince{
+		Set qryString=qryString_" and b.ORGPROVINCE='"_req.orgProvince_"'"
+	}
+	if "" '= req.deptCode{
+		Set qryString=qryString_" and b.DEPTCODE='"_req.deptCode_"'"
+	}
+	if "" '= req.eventType{
+		Set qryString=qryString_" and b.EVENTTYPE='"_req.eventType_"'"
+	}
+	if "" '= req.orgCode{
+		Set qryString=qryString_" and b.OrgCode='"_req.orgCode_"'"
+	}
+	if "" '= req.birthDateStart{
+		Set qryString=qryString_" and '"_req.birthDateStart_"'<b.BIRTHDATE"
+	}
+	if "" '= req.birthDateEnd{
+		Set qryString=qryString_" and b.BIRTHDATE<'"_req.birthDateEnd_"'"
+	}
+	if "" '= req.timeStart{
+		Set qryString=qryString_" and '"_req.timeStart_"'<b.STARTDATE"
+	}
+	if "" '= req.timeEnd{
+		Set qryString=qryString_" and b.ENDDATE<'"_req.timeEnd_"'"
+	}
+	Quit qryString	
 }
 
 Method BuildDiagSrhString(inputStr As %String) As %String

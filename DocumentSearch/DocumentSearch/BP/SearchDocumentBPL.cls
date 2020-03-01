@@ -10,7 +10,7 @@ Storage Default
 /// BPL Definition
 XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 {
-<process language='objectscript' request='DocumentSearch.Message.SearchEncounterDocRequest' response='DocumentSearch.Message.SearchEncounterDocResponse' height='2000' width='2000' >
+<process language='objectscript' request='DocumentSearch.Message.SearchEncounterDocRequest' response='DocumentSearch.Message.SearchEncounterDocResponse' height='2050' width='2000' >
 <context>
 <property name='IsReqValid' type='%Boolean' instantiate='0' />
 <property name='IsViewExisting' type='%String' instantiate='0' >
@@ -41,29 +41,34 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 <property name='PageSize' type='%Integer' instantiate='0' />
 <property name='EntArrayStream' type='%Stream.GlobalCharacter' instantiate='0' />
 </context>
-<sequence xend='200' yend='1550' >
-<if name='IsSearchConditionNotEmpty' condition='(("" &apos;= request.diag)||("" &apos;= request.drug)||("" &apos;= request.operation)||("" &apos;= request.labMaster)||("" &apos;= request.examMaster))' xpos='200' ypos='250' xend='200' yend='1450' >
+<sequence xend='200' yend='1700' >
+<if name='IsSearchConditionNotEmpty' condition='(("" &apos;= request.diag)||("" &apos;= request.drug)||("" &apos;= request.operation)||("" &apos;= request.labMaster)||("" &apos;= request.examMaster))' xpos='200' ypos='250' xend='200' yend='1600' >
 <true>
 <assign name="SetPageSize" property="context.PageSize" value="request.pageSize" action="set" xpos='470' ypos='400' />
 <call name='CheckViewExistence' target='DocumentSearch.BO.DocumentViewOperation' async='0' xpos='470' ypos='500' >
 <request type='DocumentSearch.Message.CheckViewRequest' >
 <assign property="callrequest.SessionId" value="request.sessionId" action="set" />
+<assign property="callrequest.request" value="request" action="set" />
 </request>
 <response type='Ens.StringResponse' >
 <assign property="context.IsViewExisting" value="callresponse.StringValue" action="set" />
 </response>
 </call>
-<if name='IsViewExisting' condition='context.IsViewExisting' xpos='470' ypos='600' xend='470' yend='850' >
+<if name='IsViewExisting' condition='context.IsViewExisting' xpos='470' ypos='600' xend='470' yend='1500' >
 <true>
-<call name='RemoveView' target='DocumentSearch.BO.DocumentViewOperation' async='1' xpos='605' ypos='750' >
-<request type='Ens.StringRequest' >
-<assign property="callrequest.StringValue" value="request.sessionId" action="set" />
+<call name='GetFromView' target='DocumentSearch.BP.GetDocumentsFromViewBPL' async='0' xpos='470' ypos='750' >
+<request type='DocumentSearch.Message.GetEncounterDocsFromViewRequest' >
+<assign property="callrequest.SessionId" value="request.sessionId" action="set" />
+<assign property="callrequest.PageNumber" value="1" action="set" />
+<assign property="callrequest.PageSize" value="request.pageSize" action="set" />
 </request>
-<response type='DocumentSearch.Message.Session.GetEncounterIdsResponse' />
+<response type='DocumentSearch.Message.SearchEncounterDocResponse' >
+<assign property="response" value="callresponse" action="set" />
+</response>
 </call>
 </true>
-</if>
-<call name='SearchDocs1StTime' target='DocumentSearch.BO.OptimizedDocumentOperation' async='0' xpos='470' ypos='950' >
+<false>
+<call name='SearchDocs1StTime' target='DocumentSearch.BO.OptimizedDocumentOperation' async='0' xpos='740' ypos='750' >
 <request type='DocumentSearch.Message.SearchEncounterDocRequest' >
 <assign property="callrequest" value="request" action="set" />
 </request>
@@ -73,7 +78,23 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 <assign property="context.PatIdList" value="callresponse.PatIds" action="set" />
 </response>
 </call>
-<code name='ConstructSearchIdString' xpos='470' ypos='1050' >
+<if name='IsEntIdListEmpty?' condition='(("" = context.EntIdList) || (context.EntIdList.Count()&lt;1))' xpos='740' ypos='850' xend='740' yend='1300' >
+<true>
+<code name='ConstructEmptyResponse' xpos='740' ypos='1000' >
+<![CDATA[ Set response.SessionId = request.sessionId
+ Set response.IsSearchSucceed = 1
+ Set response.RtnMsg = "Query Succeed with no records found"
+ Set response.total = 0
+ Set response."count_id_no" = 0
+ Set response."count_org_code" = 0
+ Set response.data = ""
+
+
+ ]]>
+</code>
+</true>
+<false>
+<code name='ConstructSearchIdString' xpos='1010' ypos='1000' >
 <![CDATA[ Set tmpString = ""
  Set pageSize = context.PageSize
  Set count = context.EntIdList.Count()
@@ -87,7 +108,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
  Set context.IdString  = tmpString
  Set ^Test("context.IdString") = context.IdString]]>
 </code>
-<call name='GetDocsStream' target='DocumentSearch.BO.OptimizedDocumentOperation' async='0' xpos='470' ypos='1150' >
+<call name='GetDocsStream' target='DocumentSearch.BO.OptimizedDocumentOperation' async='0' xpos='1010' ypos='1100' >
 <request type='Ens.StringRequest' >
 <assign property="callrequest.StringValue" value="context.IdString" action="set" />
 </request>
@@ -95,7 +116,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 <assign property="context.EntArrayStream" value="callresponse.ContentStream" action="set" />
 </response>
 </call>
-<code name='ConstructResponse' xpos='470' ypos='1250' >
+<code name='ConstructResponse' xpos='1010' ypos='1200' >
 <![CDATA[ Set response.SessionId = request.sessionId
  Set response.IsSearchSucceed = 1
  Set response.RtnMsg = "Query Succeed"
@@ -106,12 +127,16 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 
  ]]>
 </code>
-<call name='CreateView' target='DocumentSearch.BO.DocumentViewOperation' async='1' xpos='470' ypos='1350' >
+</false>
+</if>
+<call name='CreateView' target='DocumentSearch.BO.DocumentViewOperation' async='1' xpos='740' ypos='1400' >
 <request type='DocumentSearch.Message.SearchEncounterDocRequest' >
 <assign property="callrequest" value="request" action="set" />
 </request>
 <response type='DocumentSearch.Message.ViewOperationResponse' />
 </call>
+</false>
+</if>
 </true>
 <false>
 <assign name="SetRespAsFailure" property="response.IsSearchSucceed" value="0" action="set" xpos='200' ypos='400' />

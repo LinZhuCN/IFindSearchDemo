@@ -69,6 +69,22 @@ Index IdxPATIENTID On PATIENTID;
 
 Index IdxEncounterType On EncounterType [ Type = bitmap ];
 
+// Other Indices
+
+Index IdxSEXCODE On SEXCODE [ Type = bitmap ];
+
+Index IdxBIRTHDATE On BIRTHDATE;
+
+Index IdxSTARTDATE On STARTDATE;
+
+Index IdxENDDATE On ENDDATE;
+
+Index IdxORGPROVINCE On ORGPROVINCE [ Type = bitmap ];
+
+Index IdxDEPTCODE On DEPTCODE [ Type = bitmap ];
+
+Index IdxEVENTTYPE On EVENTTYPE [ Type = bitmap ];
+
 // 虚字段，用于处理目前文本索引的一个bug
 
 Property Dummy As %Integer [ InitialExpression = 1 ];
@@ -281,7 +297,7 @@ Storage Default
 <Selectivity>0.2506%</Selectivity>
 </Property>
 <Property name="id">
-<AverageFieldSize>9.82</AverageFieldSize>
+<AverageFieldSize>11.82</AverageFieldSize>
 <Selectivity>0.2500%</Selectivity>
 </Property>
 <SQLMap name="$EncounterDoc">
@@ -290,11 +306,23 @@ Storage Default
 <SQLMap name="IDKEY">
 <BlockCount>-60</BlockCount>
 </SQLMap>
+<SQLMap name="IdxBIRTHDATE">
+<BlockCount>-8</BlockCount>
+</SQLMap>
+<SQLMap name="IdxDEPTCODE">
+<BlockCount>-8</BlockCount>
+</SQLMap>
 <SQLMap name="IdxDummy">
 <BlockCount>-4</BlockCount>
 </SQLMap>
-<SQLMap name="IdxEncounterId">
+<SQLMap name="IdxENDDATE">
+<BlockCount>-12</BlockCount>
+</SQLMap>
+<SQLMap name="IdxEVENTTYPE">
 <BlockCount>-8</BlockCount>
+</SQLMap>
+<SQLMap name="IdxEncounterId">
+<BlockCount>-12</BlockCount>
 </SQLMap>
 <SQLMap name="IdxEncounterNumber">
 <BlockCount>-8</BlockCount>
@@ -302,10 +330,19 @@ Storage Default
 <SQLMap name="IdxEncounterType">
 <BlockCount>-4</BlockCount>
 </SQLMap>
+<SQLMap name="IdxORGPROVINCE">
+<BlockCount>-8</BlockCount>
+</SQLMap>
 <SQLMap name="IdxOrgCode">
 <BlockCount>-8</BlockCount>
 </SQLMap>
 <SQLMap name="IdxPATIENTID">
+<BlockCount>-4</BlockCount>
+</SQLMap>
+<SQLMap name="IdxSEXCODE">
+<BlockCount>-8</BlockCount>
+</SQLMap>
+<SQLMap name="IdxSTARTDATE">
 <BlockCount>-8</BlockCount>
 </SQLMap>
 <StreamLocation>^ClinicalDocument.EncounterDocS</StreamLocation>

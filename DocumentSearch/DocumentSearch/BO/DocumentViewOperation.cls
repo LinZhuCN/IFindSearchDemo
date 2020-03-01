@@ -22,6 +22,7 @@ Method RemoveView(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.
 	Set tStatement = ##class(%SQL.Statement).%New()
 	Set tSC = tStatement.%Prepare(queryString)
 	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
+	Set tSC = ##Class(DocumentSearch.Cache.ViewAndRequest).%DeleteId(pInput.StringValue)
 	#Dim pOutput As DocumentSearch.Message.ViewOperationResponse  = ##Class(DocumentSearch.Message.ViewOperationResponse).%New()
 	Set pOutput.ViewName = viewName
 	Set pOutput.SessionId = pInput.StringValue
@@ -36,8 +37,9 @@ Method RemoveView(pInput As Ens.StringRequest, Output pOutput As DocumentSearch.
 Method CreateView(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Output pOutput As DocumentSearch.Message.ViewOperationResponse) As %Status
 {
 	Set tSC = $$$OK
+	Set tSC = ..ClearView(pInput.sessionId)
 	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_pInput.sessionId
-	Set queryString = "Create View "_viewName_" As (select EncounterId,OrgCode,PatientId from %PARALLEL ( "
+	Set queryString = "Create View "_viewName_" As (select a.EncounterId,a.OrgCode,a.PatientId from %PARALLEL ( "
 	#Dim unionStrArr As %ListOfDataTypes  = ##class(%ListOfDataTypes).%New()
 	If "" '= pInput.diag{
 		Do unionStrArr.Insert(..BuildDiagSrhString(pInput.diag))
@@ -61,10 +63,21 @@ Method CreateView(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Ou
 			Set queryString  = queryString _unionStrArr.GetAt(i)
 		}
 	}
-	Set queryString = queryString_" ))"
+	Set queryString = queryString_" ) As a"
+	Set entQryString = ..BuildEncounterSrhString(pInput)
+	If "" '= entQryString {
+		Set queryString = queryString _ ", ClinicalDocument.EncounterDoc As b where a.EncounterId = b.EncounterId"_entQryString
+		
+	}
+	Set queryString = queryString _")"
+	Set ^Temp("viewStr") = queryString
 	Set tStatement = ##class(%SQL.Statement).%New()
 	Set tSC = tStatement.%Prepare(queryString)
 	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
+	#Dim viewCache As DocumentSearch.Cache.ViewAndRequest = ##Class(DocumentSearch.Cache.ViewAndRequest).%New()
+	Set viewCache.SessionId = pInput.sessionId
+	Set viewCache.req = ##Class(DocumentSearch.Message.Cached.CachedSearchRequest).GetCacheObject(pInput)
+	Set tSC = viewCache.%Save()
 	#Dim pOutput As DocumentSearch.Message.ViewOperationResponse = ##Class(DocumentSearch.Message.ViewOperationResponse).%New()
 	Set pOutput.SessionId = pInput.sessionId
 	If tSC {
@@ -74,6 +87,39 @@ Method CreateView(pInput As DocumentSearch.Message.SearchEncounterDocRequest, Ou
 		Set pOutput.IsSucceed = 0
 	}
 	Quit tSC
+}
+
+Method BuildEncounterSrhString(req As DocumentSearch.Message.SearchEncounterDocRequest) As %String
+{
+	Set qryString = ""
+	if "" '= req.sex{
+		Set qryString=qryString_" and b.SEXCODE='"_req.sex_"'"
+	}
+	if "" '= req.orgProvince{
+		Set qryString=qryString_" and b.ORGPROVINCE='"_req.orgProvince_"'"
+	}
+	if "" '= req.deptCode{
+		Set qryString=qryString_" and b.DEPTCODE='"_req.deptCode_"'"
+	}
+	if "" '= req.eventType{
+		Set qryString=qryString_" and b.EVENTTYPE='"_req.eventType_"'"
+	}
+	if "" '= req.orgCode{
+		Set qryString=qryString_" and b.OrgCode='"_req.orgCode_"'"
+	}
+	if "" '= req.birthDateStart{
+		Set qryString=qryString_" and '"_req.birthDateStart_"'<b.BIRTHDATE"
+	}
+	if "" '= req.birthDateEnd{
+		Set qryString=qryString_" and b.BIRTHDATE<'"_req.birthDateEnd_"'"
+	}
+	if "" '= req.timeStart{
+		Set qryString=qryString_" and '"_req.timeStart_"'<b.STARTDATE"
+	}
+	if "" '= req.timeEnd{
+		Set qryString=qryString_" and b.ENDDATE<'"_req.timeEnd_"'"
+	}
+	Quit qryString	
 }
 
 Method BuildDiagSrhString(inputStr As %String) As %String
@@ -167,11 +213,38 @@ Method IsViewExisting(pInput As DocumentSearch.Message.CheckViewRequest, Output 
 	Set viewName = ..#viewPrefix_"_"_pInput.SessionId
 	Set schemaName = ..#viewSchema
 	Set viewId = ""
+	Set existing = 0
 	&SQL(SELECT ID INTO :viewId FROM INFORMATION_SCHEMA.VIEWS
 		Where TABLE_SCHEMA=:schemaName AND TABLE_NAME=:viewName)
+	If "" '= viewId{
+		Set existing = 1
+	}
+	If "" '= pInput.request{
+		#Dim cacheObj As DocumentSearch.Cache.ViewAndRequest = ##Class(DocumentSearch.Cache.ViewAndRequest).%OpenId(pInput.SessionId)
+		Set existing = existing && ("" '= cacheObj)
+		If "" '= cacheObj{
+			Set equal = cacheObj.req.Equals(pInput.request)
+			Set existing = existing && equal
+			}
+	}
 	Set pOutput = ##Class(Ens.StringResponse).%New()
-	Set pOutput.StringValue = ("" '= viewId)
+	Set pOutput.StringValue = existing
 	Quit $$$OK
+}
+
+Method ClearView(sessionId As %String) As %Status
+{
+	Set tSC = $$$OK
+	If "" = sessionId {
+		Quit tSC
+	}
+	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_sessionId
+	Set queryString = "Drop View "_viewName
+	Set tStatement = ##class(%SQL.Statement).%New()
+	Set tSC = tStatement.%Prepare(queryString)
+	#Dim rset As %SQL.StatementResult = tStatement.%Execute()
+	Set tSC = ##Class(DocumentSearch.Cache.ViewAndRequest).%DeleteId(sessionId)
+	Quit tSC
 }
 
 XData MessageMap
