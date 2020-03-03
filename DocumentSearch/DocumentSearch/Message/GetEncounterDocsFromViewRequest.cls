@@ -3,9 +3,10 @@ Class DocumentSearch.Message.GetEncounterDocsFromViewRequest Extends Ens.Request
 
 Property SessionId As %String [ Required ];
 
+Property size As %Integer(MAXVAL = 100, MINVAL = 10);
 Property PageSize As %Integer(MAXVAL = 100, MINVAL = 10);
 
-Property PageNumber As %Integer(MINVAL = 1);
+Property from As %Integer(MINVAL = 1);
 
 Storage Default
 {
@@ -19,6 +20,12 @@ Storage Default
 </Value>
 <Value name="3">
 <Value>PageNumber</Value>
+</Value>
+<Value name="4">
+<Value>from</Value>
+</Value>
+<Value name="5">
+<Value>size</Value>
 </Value>
 </Data>
 <DefaultData>GetEncounterDocsFromViewRequestDefaultData</DefaultData>

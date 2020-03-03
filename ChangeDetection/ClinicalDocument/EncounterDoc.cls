@@ -47,8 +47,6 @@ Property EncounterContent As %Stream.GlobalCharacter;
 
 // 索引区域，所有会用于查询的字段都应该有索引
 
-Index IdxEncounterContent On (EncounterContent) As %iFind.Index.Basic(INDEXOPTION = 0, LANGUAGE = "ja", LOWER = 1);
-
 Property PATIENTID As %String(MAXLEN = 50);
 
 Property EncounterId As %String(MAXLEN = 200) [ Required ];
@@ -60,8 +58,6 @@ Property EncounterNumber As %String(MAXLEN = 128) [ Required ];
 Property EncounterType As %String;
 
 Index IdxEncounterId On EncounterId [ Unique ];
-
-Index IdxOrgCode On OrgCode [ Type = bitmap ];
 
 Index IdxEncounterNumber On EncounterNumber;
 
@@ -84,6 +80,8 @@ Index IdxORGPROVINCE On ORGPROVINCE [ Type = bitmap ];
 Index IdxDEPTCODE On DEPTCODE [ Type = bitmap ];
 
 Index IdxEVENTTYPE On EVENTTYPE [ Type = bitmap ];
+
+Index IdxOrgCode On OrgCode [ Type = bitmap ];
 
 // 虚字段，用于处理目前文本索引的一个bug
 

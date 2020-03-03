@@ -10,9 +10,28 @@ ClassMethod InitiateSearch()As %Status{
 	Try    {    	
 	//Retrieve data from request content and tranfer it into an entity instance
 	Set qryString = $ZCVT((%request.Content.Read()),"I","UTF8")
+	Set ^Temp("qryString")=qryString
+	//#Dim dynObj As %DynamicObject = ##Class(%DynamicObject).%FromJSON(qryString)
 	#Dim instance As DocumentSearch.Message.SearchEncounterDocRequest = ##Class(DocumentSearch.Message.SearchEncounterDocRequest).%New()
-	Set instance.sessionId = %session.SessionId
+	/*Set instance.sessionId = %session.SessionId
+	Set instance.diag = dynObj.diag
+	Set instance.drug = dynObj.drug
+	Set instance.examMaster = dynObj.examMaster
+	Set instance.labMaster = dynObj.labMaster
+	Set instance.sex = dynObj.sex
+	Set instance.birthDateStart = dynObj.birthDateStart
+	Set instance.birthDateEnd = dynObj.birthDateEnd
+	Set instance.timeStart = dynObj.timeStart
+	Set instance.timeEnd = dynObj.timeEnd
+	Set instance.orgProvince = dynObj.orgProvince
+	Set instance.orgCode = dynObj.orgCode
+	Set instance.deptCode = dynObj.deptCode
+	Set instance.eventType = dynObj.eventType
+	Set instance.pageSize = dynObj.size
+	Set instance.from = dynObj.from*/
 	Set tSC = instance.%JSONImport(qryString)
+	Set instance.sessionId = %session.SessionId
+	Set instance.pageSize = instance.size
 	If $$$ISERR(tSC){
 		Do ..%SetStatusCode(..#HTTP400BADREQUEST)
 		Set rtnObj.message = ##Class(%SYSTEM.Status).GetErrorText(tSC)

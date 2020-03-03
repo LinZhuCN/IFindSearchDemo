@@ -39,7 +39,21 @@ ClassMethod GetEncountsByIdString(pInput As Ens.StringRequest, Output pOutput As
 	Quit tSC
 }
 
-
+ClassMethod Test() As %Status
+{
+ w "Start:",$h,!
+ Set qryStr = "*高血压* OR *2型糖尿病*"
+  SET myquery="SELECT EncounterId,OrgCode,PatientId FROM ClinicalDocument.DiagnosisDoc where %ID %FIND search_index(ClinicalDocument.DiagnosisDoc.IdxDiagnosisContent,?,0,'ja')"
+  SET rset = ##class(%SQL.Statement).%ExecDirect(,.myquery,qryStr)
+  w "Executed:",$h,!
+  Set (tPatCount,tOrgCount,tEncCount)=0
+  WHILE rset.%Next() 
+  {
+  } 
+  w "Loop:",$h,!
+  w "Org count=",tOrgCount," Patient count=",tPatCount," Encounter count=",tEncCount,!
+  Quit $$$OK
+}
 
 XData MessageMap
 {

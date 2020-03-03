@@ -2,7 +2,9 @@ Class DocumentSearch.Message.SearchEncounterDocRequest Extends (Ens.Request,%JSO
 {
 	Property sessionId As %String;
 	//PageSize between 10 to 100
+	Property size As %Integer(MINVAL=10,MAXVAL=100);
 	Property pageSize As %Integer(MINVAL=10,MAXVAL=100);
+	Property from As %Integer(MINVAL = 1);
 	Property diag As %String;
 	Property drug As %String;
 	Property operation As %String;
@@ -17,6 +19,11 @@ Class DocumentSearch.Message.SearchEncounterDocRequest Extends (Ens.Request,%JSO
 	Property orgCode As %String;
 	Property deptCode As %String;
 	Property eventType As %String;
+	
+	Property "_index" As %String;
+	Property "_type" As %String;
+	Property "_dsl" As %String;
+	
 	/*Property from As %Integer[ InitialExpression = 1 ];
 	Property size As %Integer(MINVAL=10,MAXVAL=100)[ InitialExpression = 100 ];*/
 	
@@ -101,6 +108,18 @@ Storage Default
 </Value>
 <Value name="18">
 <Value>size</Value>
+</Value>
+<Value name="19">
+<Value>PageNumber</Value>
+</Value>
+<Value name="20">
+<Value>_index</Value>
+</Value>
+<Value name="21">
+<Value>_type</Value>
+</Value>
+<Value name="22">
+<Value>_dsl</Value>
 </Value>
 </Data>
 <DefaultData>SearchEncounterDocRequestDefaultData</DefaultData>

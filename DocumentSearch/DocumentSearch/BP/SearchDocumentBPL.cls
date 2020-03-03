@@ -59,7 +59,7 @@ XData BPL [ XMLNamespace = "http://www.intersystems.com/bpl" ]
 <call name='GetFromView' target='DocumentSearch.BP.GetDocumentsFromViewBPL' async='0' xpos='470' ypos='750' >
 <request type='DocumentSearch.Message.GetEncounterDocsFromViewRequest' >
 <assign property="callrequest.SessionId" value="request.sessionId" action="set" />
-<assign property="callrequest.PageNumber" value="1" action="set" />
+<assign property="callrequest.from" value="request.from" action="set" />
 <assign property="callrequest.PageSize" value="request.pageSize" action="set" />
 </request>
 <response type='DocumentSearch.Message.SearchEncounterDocResponse' >

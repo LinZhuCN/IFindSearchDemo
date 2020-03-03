@@ -182,10 +182,11 @@ Method BuildIFindSearchString(inString As %String) As %String
 Method GetEncounterIdsFromView(pInput As DocumentSearch.Message.GetEncounterDocsFromViewRequest, Output pOutput As DocumentSearch.Message.GetEncounterIdsResponse) As %Status{
 	Set tSC = $$$OK
 	Set viewName = ..#viewSchema_"."_..#viewPrefix_"_"_pInput.SessionId
+	Set pInput.PageSize = pInput.size
 	Set pageSize = pInput.PageSize
-	Set pageNumber = pInput.PageNumber
-	Set stIdx = (pageSize*(pageNumber-1))+1
-	Set edIdx = pageSize*pageNumber
+	Set from = pInput.from
+	Set stIdx = from
+	Set edIdx = from + pageSize
 	Set queryString = "SELECT EncounterId, OrgCode, PATIENTID"
 		_" FROM "_viewName
 		_" where %VID Between ? AND ?"
